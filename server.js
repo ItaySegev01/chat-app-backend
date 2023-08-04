@@ -1,11 +1,17 @@
-const express = require('express');
-const app = express();
-const cors = require('cors');
-const User = require('./models/User');
-const Message = require('./models/Message');
-const userRoutes = require('./routes/userRoutes');
+import express from 'express';
+import cors from 'cors';
+import User from './models/User.js';
+import Message from './models/Message.js';
+import dotenv from 'dotenv';
+import UserRouter from './routes/userRoutes.js';
+import http from 'http';
+import connect from './connection.js';
+import { getLastMessagesFromRoom, sortRoomMessagesByDate } from './utils.js';
+import { Server } from 'socket.io';
 
-require('dotenv').config();
+const app = express();
+
+dotenv.config();
 
 const rooms = ['general', 'tech', 'finance', 'crypto'];
 
@@ -17,38 +23,22 @@ app.use(
   })
 );
 
-app.use('/api/users', userRoutes);
-require('./connection.js');
+app.use('/api/users', UserRouter);
 
-const server = require('http').createServer(app);
+// connect to the database
+connect();
+
+const server = http.createServer(app);
 
 const port = process.env.PORT || 3000;
-const io = require('socket.io')(server, {
+
+const io = new Server(server, {
   cors: {
     origin: 'http://localhost:5173',
     methods: ['GET', 'POST'],
   },
 });
 
-async function getLastMessagesFromRoom(room) {
-  let roomMessages = await Message.aggregate([
-    { $match: { to: room } },
-    { $group: { _id: '$date', messagesByDate: { $push: '$$ROOT' } } },
-  ]);
-  return roomMessages;
-}
-
-function sortRoomMessagesByDate(messages) {
-  return messages.sort(function (a, b) {
-    let date1 = a._id.split('/');
-    let date2 = b._id.split('/');
-
-    date1 = date1[2] + date1[0] + date1[1];
-    date2 = date2[2] + date2[0] + date2[1];
-
-    return date1 < date2 ? -1 : 1;
-  });
-}
 
 // socket connection
 

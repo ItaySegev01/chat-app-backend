@@ -1,6 +1,9 @@
-const mongoose = require('mongoose');
-const { isEmail } = require('validator');
-const bcrypt = require('bcryptjs');
+import mongoose from 'mongoose';
+import pkg from 'validator';
+import bcrypt from 'bcryptjs';
+
+const { isEmail } = pkg;
+
 
 const UserSchema = new mongoose.Schema(
   {
@@ -69,4 +72,4 @@ UserSchema.statics.findByCredentials = async function (email, password) {
 
 const User = mongoose.model('User', UserSchema);
 
-module.exports = User;
+export default User;
