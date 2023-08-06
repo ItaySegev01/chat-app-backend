@@ -39,7 +39,6 @@ const io = new Server(server, {
   },
 });
 
-
 // socket connection
 
 io.on('connection', (socket) => {
