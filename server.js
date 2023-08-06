@@ -19,7 +19,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(
   cors({
-    origin: 'http://localhost:5173',
+    origin: '*',
   })
 );
 
@@ -34,7 +34,7 @@ const port = process.env.PORT || 3000;
 
 const io = new Server(server, {
   cors: {
-    origin: 'http://localhost:5173',
+    origin: '*',
     methods: ['GET', 'POST'],
   },
 });
